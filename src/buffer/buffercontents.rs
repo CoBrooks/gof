@@ -24,36 +24,46 @@ pub struct BufferContents {
 }
 
 impl BufferContents {
-    pub fn new() -> Result<Self, Box<dyn Error>> {
-        debug!("Instantiating new buffer.");
+    pub fn new() -> Self {
+        debug!("Creating empty buffer.");
 
         let rope = Rope::new();
 
-        Ok(Self {
+        Self {
             rope, 
             line: 0,
             col: 0,
             scroll_offset: 0,
-        })
+        }
     }
 
-    pub fn load_file(filepath: &str) -> Result<Self, Box<dyn Error>> {
-        debug!("Loading contents of file: '{}'", filepath);
+    pub fn load_file(filepath: &str) -> Self {
+        match File::open(filepath) {
+            Ok(file) => {
+                let reader = BufReader::new(file);
+                let rope = Rope::from_reader(reader).unwrap();
 
-        let reader = BufReader::new(File::open(filepath)?);
-        let rope = Rope::from_reader(reader)?;
+                debug!("Loaded contents of file {}", filepath);
 
-        Ok(Self {
-            rope,
-            line: 0,
-            col: 0,
-            scroll_offset: 0,
-        })
+                Self {
+                    rope,
+                    line: 0,
+                    col: 0,
+                    scroll_offset: 0
+                }
+            },
+            Err(e) => {
+                debug!("Error loading file: {:?}", e);
+                Self::new()
+            }
+        }
     }
 
     pub fn save_file(&self, filepath: &str) -> Result<(), std::io::Error> {
         self.rope.write_to(
-            BufWriter::new(File::create(filepath)?)
+            BufWriter::new(
+                File::create(filepath)?
+            )
         )
     }
 

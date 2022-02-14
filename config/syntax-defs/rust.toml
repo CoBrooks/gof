@@ -1,0 +1,13 @@
+[info]
+name = "Rust"
+extension = "rust"
+
+[syntax]
+number = [ '([0-9]+[0-9_]*)', '(0x[a-f0-9_]+)' ]
+string = [ '(".*?[^\\]")', '''('.*?[^\\]')''' ]
+comment = [ '(//.*\n?)' ] # TODO: Block comment
+fn-call = [ '(\w+)(?:\()']
+class = [ '([[:upper:]]\w+)' ] # REALLY lazy regex
+keyword = [ '(as|break|const|continue|else|enum|extern|fn|for|if|impl|in|let|loop|match|mod|move|mut|pub|ref|return|static|struct|super|trait|type|unsafe|use|where|while|async|await|dyn|union)' ]
+keyword-alt = [ '(self|true|false|crate|macro_rules)' ]
+property = [ '(?:\w+\.)(\w+)', '(\w+!)\(.+\)', '([[:lower:]]\w+)::', '#\[(.*)\]' ]

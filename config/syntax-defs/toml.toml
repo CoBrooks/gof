@@ -1,0 +1,14 @@
+[info]
+name = "TOML"
+ext = "toml"
+
+[syntax]
+strings = [ '"', '"""', "'", "'''" ] # Find toml string regex
+comments = [ "#.*" ]
+keywords = [
+  { kw = '[+\-]?inf', color = "number" },
+  { kw = '[+\-]?nan', color = "number" },
+  { kw = '^(\S+)\W*=', color = "key" },
+  { kw = '^\[(\S+)\]', color = "key" },
+]
+

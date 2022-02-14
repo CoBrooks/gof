@@ -1,5 +1,5 @@
 use super::*;
-use crate::buffer::buffercontents::Direction as Dir;
+use crate::{buffer::buffercontents::Direction as Dir, syntax::SyntaxHighlighter};
 
 use termion::event::Key;
 use tui::text::Span;
@@ -15,6 +15,7 @@ pub enum EditorMode {
 pub struct Buffer {
     pub filepath: Option<PathBuf>,
     pub contents: BufferContents,
+    pub syn: SyntaxHighlighter,
     pub selected: bool,
     pub layout: Layout,
     pub mode: EditorMode,
@@ -22,10 +23,10 @@ pub struct Buffer {
 }
 
 impl Buffer {
-    pub fn new() -> Result<Self, Box<dyn Error>> {
+    pub fn new(syn: SyntaxHighlighter) -> Self {
         debug!("Creating new empty buffer.");
 
-        let contents = BufferContents::new()?;
+        let contents = BufferContents::new();
 
         let layout = Layout::default()
             .direction(Direction::Horizontal)
@@ -36,20 +37,21 @@ impl Buffer {
                 ].as_ref()
             ).margin(0);
 
-        Ok(Buffer {
+        Buffer {
             filepath: None,
             contents,
+            syn,
             selected: true,
             layout,
             mode: EditorMode::Normal,
             height: 0,
-        })
+        }
     }
 
-    pub fn open_file(filepath: &str) -> Result<Self, Box<dyn Error>> {
+    pub fn open_file(syn: SyntaxHighlighter, filepath: &str) -> Result<Self, Box<dyn Error>> {
         debug!("Creating buffer from file: '{}'", filepath);
 
-        let contents = BufferContents::load_file(filepath)?;
+        let contents = BufferContents::load_file(filepath);
         let filepath: PathBuf = PathBuf::from_str(filepath)?;
 
         let layout = Layout::default()
@@ -64,6 +66,7 @@ impl Buffer {
         Ok(Buffer {
             filepath: Some(filepath),
             contents,
+            syn,
             selected: true,
             layout,
             mode: EditorMode::Normal,
@@ -92,7 +95,9 @@ impl Buffer {
             .border_type(BorderType::Rounded)
             .border_style(Style::default().fg(Color::DarkGray));
 
-        let text = Text::from(self.contents.get_rendered_lines(self.height));
+        let lines = self.contents.get_rendered_lines(self.height);
+        // let text = Text::from(lines);
+        let text = self.syn.highlight_lines(&lines);
         
         let contents = Paragraph::new(text)
             .block(contents_block.clone());
@@ -160,10 +165,9 @@ impl Buffer {
             },
             (EditorMode::Normal, Key::Char('W')) => {
                 if let Some(filepath) = &self.filepath {
-                    if let Err(e) = self.contents.save_file(filepath.to_str().unwrap()) {
-                        error!("Error saving file: {:?}.", e);
-                    } else {
-                        info!("Writing buffer to file {:?}", filepath);
+                    match self.contents.save_file(filepath.to_str().unwrap()) {
+                        Ok(_) => info!("Writing buffer to file {:?}", filepath),
+                        Err(e) => error!("Error saving file: {:?}.", e),
                     }
                 }
             },

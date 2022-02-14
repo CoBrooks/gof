@@ -1,0 +1,23 @@
+[instant-actions]
+
+[[global]]
+EnterNormal     = { key = "ESC", mods = [ ] }
+
+[[normal]]
+MoveLeft        = { key = "h", mods = [ ] }
+MoveDown        = { key = "j", mods = [ ] }
+MoveUp          = { key = "k", mods = [ ] }
+MoveRight       = { key = "l", mods = [ ] }
+InsertAfter     = { key = "i", mods = [ ] }
+InsertBefore    = { key = "a", mods = [ ] }
+InsertEnd       = { key = "A", mods = [ "SHIFT" ] }
+InsertStart     = { key = "I", mods = [ "SHIFT" ] }
+EnterScroll     = { key = "n", mods = [ ] }
+
+[[scroll]]
+ScrollDown      = { key = "j", mods = [ ] }
+ScrollUp        = { key = "k", mods = [ ] }
+PageDown        = { key = "J", mods = [ "SHIFT" ] }
+PageUp          = { key = "K", mods = [ "SHIFT" ] }
+ScrollToTop     = { key = "g", mods = [ ] } 
+ScrollToBottom  = { key = "G", mods = [ "SHIFT" ] } 

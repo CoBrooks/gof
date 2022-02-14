@@ -36,4 +36,6 @@ pub const TAB_LENGTH: usize = 4;
 
 pub mod buffer;
 pub mod editor;
+pub mod syntax;
+pub mod config;
 

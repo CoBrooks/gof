@@ -44,16 +44,22 @@ pub struct Editor {
 
 impl Editor {
     pub fn new_from_buffers(buffers: Vec<Buffer>) -> Result<Self, Box<dyn Error>> {
-        let (stdin, out, terminal) = Self::setup_terminal_crossterm()?;
+        match Self::setup_terminal_crossterm() {
+            Ok((stdin, out, terminal)) => {
+                let ed = Editor {
+                    buffers,
+                    stdin,
+                    out,
+                    terminal
+                };
 
-        let ed = Editor {
-            buffers,
-            stdin,
-            out,
-            terminal
-        };
-
-        Ok(ed)
+                Ok(ed)
+            },
+            Err(e) => {
+                debug!("Error setting up terminal: {:?}.", e);
+                panic!("{:?}", e);
+            }
+        }
     }
 
     fn setup_terminal_crossterm() -> Result<(In, Out, Term), Box<dyn Error>> {
@@ -74,7 +80,9 @@ impl Editor {
         -> Result<(), Box<dyn Error>> {
 
         let mut input_queue: Vec<Key> = Vec::new();
-        self.draw_buffers(&mut input_queue)?;
+        if let Err(e) = self.draw_buffers(&mut input_queue) {
+            error!("{:?}", e);
+        }
 
         loop {
             // Async input handling
@@ -107,18 +115,16 @@ impl Editor {
                     buffer.handle_keypress(event);
                 }
 
-                let e = match buffer.mode {
+                match buffer.mode {
                     EditorMode::Normal => write!(self.out, "{}", SteadyBlock),
                     EditorMode::Insert => write!(self.out, "{}", BlinkingBar),
                     EditorMode::Scroll => write!(self.out, "{}", BlinkingBlock),
-                };
-
-                if let Err(e) = e {
-                    error!("{:?}", e);
-                }
+                }?;
             }
             
-            terminal.draw(|f| buffer.draw(f))?;
+            if let Err(e) = terminal.draw(|f| buffer.draw(f)) {
+                debug!("Failed to draw to terminal: {:?}", e);
+            }
         }
         
         Ok(())
