@@ -1,20 +1,17 @@
 KNOWN BUGS
 ==========
 
-[ ] When pressing `Enter` in insert mode, the cursor moves to the wrong column
-
 --------
 
   TODO
 ========
 
+[ ] 3, medium: re-render / re-highlight only lines around / below cursor
 [ ] 2, medium: Command (`:`) mode
 [ ] 2, medium: Delete (`d`) and Change (`c`) modes
 [ ] 2, medium: Visual (`v`) mode(s)
 [ ] 2, medium: Status bar + command gutter
 [ ] 2, medium: .toml config file
-[ ] 2, medium: abstract keycodes from code, call generic commands instead
-  [ ] 2, medium: editable keymap
 [ ] 1, 2-byte wide characters
   [ ] 1, medium: show whitespace
 [ ] 1, difficult: Multiple buffers at the same time
@@ -31,6 +28,7 @@ KNOWN BUGS
 [x] Can't move cursor to beginning of line
 [x] ESCing back into normal mode crashes
 [x] Typing in insert mode types one character before the cursor
+[x] When pressing `Enter` in insert mode, the cursor moves to the wrong column
 
 --------
 
@@ -47,3 +45,5 @@ KNOWN BUGS
 [x] 3, easy: Save edited file
 [x] 3, easy: actual error handling instead of implicit panics (`?`)
 [x] 2, difficult: colors
+[x] 2, medium: abstract keycodes from code, call generic commands instead
+  [x] 2, medium: editable keymap

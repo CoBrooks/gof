@@ -1,23 +1,28 @@
-[instant-actions]
+[global]
+NormalMode      = "esc"
+MoveLeft        = "left"
+MoveDown        = "down"
+MoveUp          = "up"
+MoveRight       = "right"
 
-[[global]]
-EnterNormal     = { key = "ESC", mods = [ ] }
+[normal]
+MoveLeft        = "h"
+MoveDown        = "j"
+MoveUp          = "k"
+MoveRight       = "l"
+InsertMode      = "i"
+Append          = "a"
+AppendLineEnd   = "A"
+InsertLineStart = "I"
+ScrollMode      = "n"
+Write           = "W"
 
-[[normal]]
-MoveLeft        = { key = "h", mods = [ ] }
-MoveDown        = { key = "j", mods = [ ] }
-MoveUp          = { key = "k", mods = [ ] }
-MoveRight       = { key = "l", mods = [ ] }
-InsertAfter     = { key = "i", mods = [ ] }
-InsertBefore    = { key = "a", mods = [ ] }
-InsertEnd       = { key = "A", mods = [ "SHIFT" ] }
-InsertStart     = { key = "I", mods = [ "SHIFT" ] }
-EnterScroll     = { key = "n", mods = [ ] }
+[scroll]
+ScrollDown      = "j"
+ScrollUp        = "k"
+PageDown        = "J"
+PageUp          = "K"
+TopOfBuffer     = "g"
+BottomOfBuffer  = "G"
 
-[[scroll]]
-ScrollDown      = { key = "j", mods = [ ] }
-ScrollUp        = { key = "k", mods = [ ] }
-PageDown        = { key = "J", mods = [ "SHIFT" ] }
-PageUp          = { key = "K", mods = [ "SHIFT" ] }
-ScrollToTop     = { key = "g", mods = [ ] } 
-ScrollToBottom  = { key = "G", mods = [ "SHIFT" ] } 
+[insert]

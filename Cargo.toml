@@ -27,3 +27,6 @@ simplelog = "0.11"
 
 toml = "0.5"
 regex = "1.5"
+
+strum = "0.23"
+strum_macros = "0.23"

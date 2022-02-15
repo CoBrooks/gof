@@ -20,7 +20,6 @@ use tui::{
         Paragraph, 
         BorderType
     }, 
-    text::Text,
     Frame, 
     style::{
         Style, 

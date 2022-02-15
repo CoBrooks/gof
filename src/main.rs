@@ -9,7 +9,8 @@ use simplelog::*;
 use gof_lib::{
     buffer::*, 
     editor::Editor,
-    config::*, syntax::SyntaxHighlighter
+    config::*, 
+    syntax::SyntaxHighlighter
 };
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -35,8 +36,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         buffers.push(Buffer::new(syn));
     }
 
-    match Editor::new_from_buffers(buffers) {
-        Ok(mut editor) => editor.run_app_loop(),
+    match Editor::new_from_buffers(buffers, "./config/keys.toml") {
+        Ok(mut editor) => {
+            editor.run_app_loop()?;
+            editor.exit()
+        }
         Err(e) => {
             debug!("Error instantiating editor: {:?}.", e);
             panic!("{:?}", e);

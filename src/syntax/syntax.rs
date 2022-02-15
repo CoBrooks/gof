@@ -1,9 +1,8 @@
 use std::collections::BTreeMap;
-use std::str::FromStr;
 use std::{collections::HashMap, ops::Range};
 use std::error::Error;
 
-use regex::{Regex, Match};
+use regex::Regex;
 use toml::Value;
 use tui::style::{ Color, Style };
 use tui::text::{Text, Span, Spans};
@@ -95,7 +94,7 @@ impl SyntaxHighlighter {
                         let inside_other_match = highlighted_ranges.keys()
                             .find_map(|k| if k.contains(&mat.start()) { Some(true) } else { None })
                             .unwrap_or(false);
-                        debug!("{} = {:?} @ [{}..{}] ({})", mat.as_str(), token, mat.start(), mat.end(), inside_other_match);
+                        // debug!("{} = {:?} @ [{}..{}] ({})", mat.as_str(), token, mat.start(), mat.end(), inside_other_match);
                         if !inside_other_match {
                             highlighted_ranges.insert(mat.start()..mat.end(), self.theme.colors[token]);
                         }
@@ -104,7 +103,7 @@ impl SyntaxHighlighter {
             }
         }
 
-        debug!("Highlighted Ranges: {:?}", highlighted_ranges);
+        // debug!("Highlighted Ranges: {:?}", highlighted_ranges);
 
         let mut word_acc: String = String::new();
         let mut line_acc: Vec<Span> = Vec::new();

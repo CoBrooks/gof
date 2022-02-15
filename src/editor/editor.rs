@@ -31,23 +31,28 @@ use tui::{
 use crate::*;
 use buffer::*;
 
+use super::InputHandler;
+
 type Term = Terminal<TermionBackend<AlternateScreen<RawTerminal<Stdout>>>>;
 type In = Keys<AsyncReader>;
 type Out = AlternateScreen<RawTerminal<Stdout>>;
 
 pub struct Editor {
     pub buffers: Vec<Buffer>,
+    input_handler: InputHandler,
     stdin: In,
     out: Out,
     terminal: Term
 }
 
 impl Editor {
-    pub fn new_from_buffers(buffers: Vec<Buffer>) -> Result<Self, Box<dyn Error>> {
+    pub fn new_from_buffers(buffers: Vec<Buffer>, input_binds: &str) -> Result<Self, Box<dyn Error>> {
+        let input_handler = InputHandler::new(input_binds)?;
         match Self::setup_terminal_crossterm() {
             Ok((stdin, out, terminal)) => {
                 let ed = Editor {
                     buffers,
+                    input_handler,
                     stdin,
                     out,
                     terminal
@@ -104,6 +109,15 @@ impl Editor {
         }
     }
 
+    pub fn exit(mut self) -> Result<(), Box<dyn Error>> {
+        // Ensure cursor is back to Solid Block
+        write!(self.out, "{}", SteadyBlock)?;
+
+        self.out.flush()?;
+
+        Ok(())
+    }
+
     fn draw_buffers(&mut self, input_queue: &mut Vec<Key>) 
         -> Result<(), Box<dyn Error>> {
 
@@ -112,7 +126,15 @@ impl Editor {
         for buffer in &mut self.buffers {
             if buffer.selected {
                 if let Some(event) = input_queue.pop() {
-                    buffer.handle_keypress(event);
+                    let action = self.input_handler.handle(&buffer.mode, event);
+                    debug!("Handling action {:?}", action);
+                    if let Some(action) = action {
+                        buffer.handle_action(action);
+                    } else if buffer.mode == EditorMode::Insert { 
+                        buffer.handle_insert(event);
+                    } else {
+                        debug!("Unhandled key: {:?}.", event);
+                    }
                 }
 
                 match buffer.mode {
