@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::{collections::HashMap, ops::Range};
 use std::error::Error;
@@ -40,14 +41,16 @@ impl From<&str> for SyntaxTokens {
 }
 
 #[derive(Debug)]
-pub struct SyntaxHighlighter {
-    name: String,
-    extension: String,
+pub struct SyntaxHighlighter<'a> {
+    #[allow(dead_code)] name: String,
+    #[allow(dead_code)] extension: String,
     theme: ThemeDefinition,
-    regex_sets: BTreeMap<SyntaxTokens, Vec<Regex>>
+    regex_sets: BTreeMap<SyntaxTokens, Vec<Regex>>,
+    cached_lines: Option<String>,
+    cached_text: Option<Cow<'a, Text<'a>>>
 }
 
-impl SyntaxHighlighter {
+impl<'a> SyntaxHighlighter<'a> {
     pub fn new(theme: ThemeDefinition, syntax_def_filepath: &str) -> Result<Self, Box<dyn Error>> {
         let contents = std::fs::read_to_string(syntax_def_filepath)?;
         let toml_val = contents.parse::<Value>()?;
@@ -61,7 +64,9 @@ impl SyntaxHighlighter {
             name,
             extension,
             theme, 
-            regex_sets
+            regex_sets,
+            cached_lines: None,
+            cached_text: None
         })
     }
 
@@ -82,7 +87,55 @@ impl SyntaxHighlighter {
         Ok(sets)
     }
 
-    pub fn highlight_lines<'a>(&self, lines: &'a str) -> Text<'a> {
+    pub fn highlight_lines(&mut self, lines: &str) -> Cow<'a, Text<'a>> {
+        if let Some(cached_lines) = &self.cached_lines {
+            if cached_lines == lines {
+                if let Some(cache) = self.cached_text.clone() {
+                    return cache;
+                }
+            } else { // If the lines have been updated...
+                let cl: Vec<&str> = cached_lines.lines().collect();
+                let l: Vec<&str> = lines.lines().collect();
+
+                // Find where the first changed line is...
+                let mut f = 0;
+                for i in 0..cached_lines.len().min(lines.len()) {
+                    if cl[i] != l[i] {
+                        f = i;
+                        break;
+                    }
+                }
+
+                if let Some(cache) = self.cached_text.clone() {
+                    // Get the cached text before the changed line
+                    let before = cache.lines[..f].to_vec();
+                    let lines_after_change = &lines.lines().collect::<Vec<&str>>()[f..].join("\n");
+                    let after = &self.get_colored_text(&lines_after_change).lines;
+
+                    let t: Vec<Spans> = [before, after.to_owned()].into_iter().flatten().collect();
+                    let t = Text::from(t);
+
+                    return self.cache(lines, t);
+                } else {
+                    unreachable!()
+                }
+            }
+        }
+
+        let t = self.get_colored_text(lines);
+        self.cache(lines, t.into_owned())
+    }
+
+    fn cache(&mut self, lines: &str, t: Text<'a>) -> Cow<'a, Text<'a>> {
+        debug!("Caching {} lines.", t.lines.len());
+
+        self.cached_text = Some(Cow::Owned(t.clone()));
+        self.cached_lines = Some(lines.to_string());
+
+        Cow::Owned(t)
+    }
+
+    fn get_colored_text(&self, lines: &str) -> Cow<'a, Text<'a>> {
         let mut highlighted_lines: Vec<Spans> = Vec::new();
 
         let mut highlighted_ranges: HashMap<Range<usize>, Color> = HashMap::new();
@@ -135,6 +188,6 @@ impl SyntaxHighlighter {
 
         let t = Text::from(highlighted_lines);
 
-        t
+        Cow::Owned(t)
     }
 }

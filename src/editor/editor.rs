@@ -37,16 +37,16 @@ type Term = Terminal<TermionBackend<AlternateScreen<RawTerminal<Stdout>>>>;
 type In = Keys<AsyncReader>;
 type Out = AlternateScreen<RawTerminal<Stdout>>;
 
-pub struct Editor {
-    pub buffers: Vec<Buffer>,
+pub struct Editor<'a> {
+    pub buffers: Vec<Buffer<'a>>,
     input_handler: InputHandler,
     stdin: In,
     out: Out,
     terminal: Term
 }
 
-impl Editor {
-    pub fn new_from_buffers(buffers: Vec<Buffer>, input_binds: &str) -> Result<Self, Box<dyn Error>> {
+impl<'a> Editor<'a> {
+    pub fn new_from_buffers(buffers: Vec<Buffer<'a>>, input_binds: &str) -> Result<Self, Box<dyn Error>> {
         let input_handler = InputHandler::new(input_binds)?;
         match Self::setup_terminal_crossterm() {
             Ok((stdin, out, terminal)) => {
@@ -84,22 +84,22 @@ impl Editor {
     pub fn run_app_loop(&mut self)
         -> Result<(), Box<dyn Error>> {
 
-        let mut input_queue: Vec<Key> = Vec::new();
-        if let Err(e) = self.draw_buffers(&mut input_queue) {
+        if let Err(e) = self.draw_buffers(None) {
             error!("{:?}", e);
         }
 
         loop {
             // Async input handling
             if let Some(Ok(key)) = self.stdin.next() {
+                let input;
                 match key {
                     Key::Char('Q') => {
                         return Ok(()) 
                     },
-                    _ => input_queue.push(key)
+                    _ => input = Some(key)
                 }
                 
-                if let Err(e) = self.draw_buffers(&mut input_queue) {
+                if let Err(e) = self.draw_buffers(input) {
                     error!("{:?}", e);
                 }
             }
@@ -118,22 +118,28 @@ impl Editor {
         Ok(())
     }
 
-    fn draw_buffers(&mut self, input_queue: &mut Vec<Key>) 
+    fn draw_buffers(&mut self, input: Option<Key>) 
         -> Result<(), Box<dyn Error>> {
 
         let terminal = &mut self.terminal;
 
         for buffer in &mut self.buffers {
             if buffer.selected {
-                if let Some(event) = input_queue.pop() {
+                if let Some(event) = input {
                     let action = self.input_handler.handle(&buffer.mode, event);
                     debug!("Handling action {:?}", action);
-                    if let Some(action) = action {
-                        buffer.handle_action(action);
-                    } else if buffer.mode == EditorMode::Insert { 
-                        buffer.handle_insert(event);
-                    } else {
-                        debug!("Unhandled key: {:?}.", event);
+
+                    match buffer.mode {
+                        EditorMode::Insert => buffer.handle_insert(event),
+                        EditorMode::Delete => buffer.handle_delete(event),
+                        EditorMode::Change => buffer.handle_change(event),
+                        _ => {
+                            if let Some(action) = action {
+                                buffer.handle_action(action);
+                            } else {
+                                debug!("Unhandled key: {:?}.", event);
+                            }
+                        }
                     }
                 }
 
@@ -141,6 +147,8 @@ impl Editor {
                     EditorMode::Normal => write!(self.out, "{}", SteadyBlock),
                     EditorMode::Insert => write!(self.out, "{}", BlinkingBar),
                     EditorMode::Scroll => write!(self.out, "{}", BlinkingBlock),
+                    EditorMode::Delete => write!(self.out, "{}", SteadyUnderline),
+                    EditorMode::Change => write!(self.out, "{}", SteadyUnderline),
                 }?;
             }
             

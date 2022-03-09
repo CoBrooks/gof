@@ -1,21 +1,24 @@
 KNOWN BUGS
 ==========
 
+[ ] empty buffers are extremely unstable / unpredictable
+[ ] appending to the end of the line brings the cursor one character too far
+
 --------
 
   TODO
 ========
 
-[ ] 3, medium: re-render / re-highlight only lines around / below cursor
-[ ] 2, medium: Command (`:`) mode
-[ ] 2, medium: Delete (`d`) and Change (`c`) modes
+[ ] 0, continual: Assorted vim commands
+[x] 2, medium: Status bar + command gutter
+  [ ] 2, medium: Command (`:`) mode
 [ ] 2, medium: Visual (`v`) mode(s)
-[ ] 2, medium: Status bar + command gutter
 [ ] 2, medium: .toml config file
 [ ] 1, 2-byte wide characters
   [ ] 1, medium: show whitespace
 [ ] 1, difficult: Multiple buffers at the same time
   [ ] 1, difficult: Dynamic adding / moving / removing / hiding of buffers
+[ ] 1, difficult: Investigate multithreading for syntax highlighting / other highlighting optimizations
 [ ] 1, medium: Directory viewing buffer
 [ ] 1, difficult: plugin system OR nice Rust api for source code editing (a la DWM)
 [ ] 1, difficult: LSP support
@@ -47,3 +50,7 @@ KNOWN BUGS
 [x] 2, difficult: colors
 [x] 2, medium: abstract keycodes from code, call generic commands instead
   [x] 2, medium: editable keymap
+[x] 3, medium: Naive caching
+[-] 3, medium: re-render / *re-highlight* only lines around / *below* cursor
+[x] 2, medium: Delete (`d`) and Change (`c`) modes
+[x] 1, easy: Abstract tui layout of buffer

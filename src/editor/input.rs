@@ -16,11 +16,9 @@ pub enum InputAction {
     MoveDown,
     MoveUp,
     MoveRight,
-    InsertMode,
     Append,
     AppendLineEnd,
     InsertLineStart,
-    ScrollMode,
     Write,
     ScrollDown,
     ScrollUp,
@@ -28,6 +26,16 @@ pub enum InputAction {
     PageUp,
     TopOfBuffer,
     BottomOfBuffer,
+    Delete,
+    
+    // Modes
+    InsertMode,
+    ScrollMode,
+    DeleteMode,
+    ChangeMode,
+    
+    #[strum(default)]
+    NoOp(String),
 }
 
 pub struct InputHandler {

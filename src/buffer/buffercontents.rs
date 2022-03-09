@@ -1,6 +1,7 @@
 use std::io::BufWriter;
 
 use super::*;
+use crate::is_word_boundary;
 
 pub enum Direction {
     Left,
@@ -15,7 +16,7 @@ impl Direction {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BufferContents {
     pub rope: Rope,
     pub line: usize,
@@ -184,5 +185,45 @@ impl BufferContents {
     
     pub fn delete_key_handler(&mut self) {
         self.rope.remove(self.char_idx()..self.char_idx()+1);
+    }
+
+    pub fn delete_current_line(&mut self) {
+        let start_idx = self.rope.line_to_char(self.line);
+        let end_idx = self.rope.line_to_char(self.line + 1);
+        self.rope.remove(start_idx..end_idx);
+    }
+
+    pub fn delete_until(&mut self, pred: fn(&char) -> bool) {
+        let start_idx = self.char_idx();
+        let chars = &self.rope.chars().collect::<Vec<char>>()[start_idx..];
+
+        let end_idx = chars.into_iter()
+            .position(pred);
+
+        if let Some(end_idx) = end_idx {
+            self.rope.remove(start_idx..end_idx);
+        }
+    }
+
+    pub fn delete_word(&mut self, from_beginning: bool) {
+        let start_idx = if from_beginning {
+            let chars = &self.rope.chars().collect::<Vec<char>>()[..self.char_idx()];
+            chars.into_iter()
+                .rposition(is_word_boundary)
+                .unwrap_or_default() + 1
+        } else {
+            self.char_idx()
+        };
+
+        let chars = &self.rope.chars().collect::<Vec<char>>()[start_idx..];
+        let end_idx = chars.into_iter()
+            .position(is_word_boundary);
+
+        if let Some(end_idx) = end_idx {
+            let end_idx = end_idx + start_idx;
+            self.rope.remove(start_idx..end_idx);
+        }
+
+        self.col = start_idx - self.rope.line_to_char(self.line);
     }
 }

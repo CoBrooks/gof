@@ -4,18 +4,22 @@ MoveLeft        = "left"
 MoveDown        = "down"
 MoveUp          = "up"
 MoveRight       = "right"
+Delete          = "x"
 
 [normal]
 MoveLeft        = "h"
 MoveDown        = "j"
 MoveUp          = "k"
 MoveRight       = "l"
-InsertMode      = "i"
 Append          = "a"
 AppendLineEnd   = "A"
 InsertLineStart = "I"
-ScrollMode      = "n"
 Write           = "W"
+# Modes
+ScrollMode      = "n"
+InsertMode      = "i"
+DeleteMode      = "d"
+ChangeMode      = "c"
 
 [scroll]
 ScrollDown      = "j"
@@ -26,3 +30,7 @@ TopOfBuffer     = "g"
 BottomOfBuffer  = "G"
 
 [insert]
+
+[delete]
+
+[change]

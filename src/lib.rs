@@ -30,8 +30,12 @@ use tui::{
 #[macro_use] extern crate log;
 
 // Anything below 60 is noticeably slow
-pub const FPS: f32 = 60.0;
+pub const FPS: f32 = 120.0;
 pub const TAB_LENGTH: usize = 4;
+
+fn is_word_boundary(c: &char) -> bool {
+    !(c.is_ascii_alphanumeric() || ['_', '-'].contains(c))
+}
 
 pub mod buffer;
 pub mod editor;
