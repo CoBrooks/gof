@@ -1,5 +1,14 @@
+<<<<<<< HEAD
 /target
 
 debug.log
 flamegraph.svg
 perf.*
+=======
+perf.*
+*.svg
+debug.log
+
+/target
+Cargo.lock
+>>>>>>> 13b061f (Beginning of re-write using custom ui framework)
