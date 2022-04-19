@@ -1,18 +1,3 @@
-<<<<<<< HEAD
-use std::{
-    error::Error,
-    fs::File, 
-};
-
-use simplelog::*;
-#[macro_use] extern crate log;
-
-use gof_lib::{
-    buffer::*, 
-    editor::Editor,
-    config::*, 
-    syntax::SyntaxHighlighter
-=======
 use std::error::Error;
 use std::fs::File;
 use std::time::Duration;
@@ -20,53 +5,17 @@ use std::time::Duration;
 use crossterm::event::{ KeyEvent, KeyCode, read, poll, Event as InputEvent };
 use simplelog::{WriteLogger, Config};
 
-use gof_ui::{
+use gof_lib::{
     application::{ Application, Event },
     ui::{
         *,
         window::{ Window, WindowAlignment, WindowInfo },
     },
     windows::*, AppState,
->>>>>>> 13b061f (Beginning of re-write using custom ui framework)
 };
 
 fn main() -> Result<(), Box<dyn Error>> {
     // Initialize logger
-<<<<<<< HEAD
-    WriteLogger::init(LevelFilter::Debug, Config::default(), File::create("./debug.log")?)?;
-
-    // Get config
-    let theme = ThemeDefinition::from_file("./config/themes/default.toml")?;
-    let syn = SyntaxHighlighter::new(theme, "./config/syntax-defs/rust.toml")?;
-
-    let args: Vec<String> = std::env::args().collect();
-    
-    let mut buffers: Vec<Buffer> = Vec::new();
-    if let Some(path) = args.get(1) {
-        match Buffer::open_file(syn, path) {
-            Ok(buffer) => buffers.push(buffer),
-            Err(e) => {
-                error!("Error creating buffer: {:?}", e);
-                panic!("{:?}", e);
-            }
-        }
-    } else {
-        buffers.push(Buffer::new(syn));
-    }
-
-    match Editor::new_from_buffers(buffers, "./config/keys.toml") {
-        Ok(mut editor) => {
-            editor.run_app_loop()?;
-            editor.exit()
-        }
-        Err(e) => {
-            debug!("Error instantiating editor: {:?}.", e);
-            panic!("{:?}", e);
-        }
-    }
-}
-
-=======
     WriteLogger::init(log::LevelFilter::Debug, Config::default(), File::create("./debug.log")?)?;
 
     let windows: Vec<Box<dyn Window<AppState>>> = vec![ 
@@ -140,6 +89,3 @@ fn app_loop(ui: &mut UI<AppState>) -> Event {
         Event::Sleep
     }
 }
-
-
->>>>>>> 13b061f (Beginning of re-write using custom ui framework)
