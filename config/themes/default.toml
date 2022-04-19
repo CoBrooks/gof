@@ -1,8 +1,0 @@
-number = "LightYellow"
-string = "Green"
-comment = "DarkGray"
-fn-call = "Blue"
-class = "Yellow"
-keyword = "Magenta"
-keyword-alt = "Yellow"
-property = "Red"
