@@ -1,3 +1,6 @@
 # Gof 
 
-See [the TODO file](./TODO.md) for both implemented and future features.
+## Warning:
+
+This project is currently a mess, as I am doing what is essentially a 
+complete rewrite using a custom tui library.
